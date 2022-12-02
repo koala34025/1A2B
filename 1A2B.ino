@@ -7,6 +7,8 @@ enum states{
   GUESS,
   WRONG,
   CORRECT,
+  SET_INVALID,
+  GUESS_INVALID
 } state;
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
@@ -90,10 +92,16 @@ void loop() {
 
     case SET:
     if(!ok && pre_ok){
-      state = GUESS;
-      lcd_print("State:", "GUESS");
-      led_update(1, 0, 0, 0);
-      sevseg.setNumber(guess[0]*1000 + guess[1]*100 + guess[2]*10 + guess[3]);
+      if(answer_valid()){
+        state = GUESS;
+        lcd_print("State:", "GUESS");
+        led_update(1, 0, 0, 0);
+        sevseg.setNumber(guess[0]*1000 + guess[1]*100 + guess[2]*10 + guess[3]);
+      }
+      else{
+        state = SET_INVALID;
+        lcd_print("State:", "SET_INVALID");
+      }
     }
     else if(!right && pre_right){
       led_update(LED_state[3], LED_state[0], LED_state[1], LED_state[2]);
@@ -106,19 +114,25 @@ void loop() {
 
     case GUESS:
     if(!ok && pre_ok){
-      verify_correctness();
-      if(A == 4){ // if 4a0b
-        state = CORRECT;
-        lcd_print("State:", "CORRECT");
-        led_update(1, 1, 1, 1);
+      if(guess_valid()){
+        verify_correctness();
+        if(A == 4){ // if 4a0b
+          state = CORRECT;
+          lcd_print("State:", "CORRECT");
+          led_update(1, 1, 1, 1);
+        }
+        else{
+          state = WRONG;
+          lcd_print("State:", "WRONG");
+          led_update(0, 0, 0, 0);
+        }
+        char str[5] = {A+'0', 'A', B+'0', 'B', '\0'};
+        sevseg.setChars(str);
       }
       else{
-        state = WRONG;
-        lcd_print("State:", "WRONG");
-        led_update(0, 0, 0, 0);
+        state = GUESS_INVALID;
+        lcd_print("State:", "GUESS_INVALID");
       }
-      char str[5] = {A+'0', 'A', B+'0', 'B', '\0'};
-      sevseg.setChars(str);
     }
     else if(!right && pre_right){
       led_update(LED_state[3], LED_state[0], LED_state[1], LED_state[2]);
@@ -148,9 +162,32 @@ void loop() {
       guess[0] = guess[1] = guess[2] = guess[3] = 0;
     }
     break;
+
+    case SET_INVALID:
+    if(!ok && pre_ok){
+      state = SET;
+      lcd_print("State:", "SET");
+    }
+    break;
+
+    case GUESS_INVALID:
+    if(!ok && pre_ok){
+      state = GUESS;
+      lcd_print("State:", "GUESS");
+    }
+    break;
+
   }
 
   //delay(20);
+}
+
+int answer_valid(){
+  return ((answer[0] != answer[1]) && (answer[1] != answer[2]) && (answer[2] != answer[3]) && (answer[3] != answer[0]));
+}
+
+int guess_valid(){
+  return ((guess[0] != guess[1]) && (guess[1] != guess[2]) && (guess[2] != guess[3]) && (guess[3] != guess[0]));
 }
 
 void guess_update(){
