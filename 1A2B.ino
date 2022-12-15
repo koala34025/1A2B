@@ -178,6 +178,7 @@ void loop() {
       sevseg.setChars("----");
       answer[0] = answer[1] = answer[2] = answer[3] = 0;
       guess[0] = guess[1] = guess[2] = guess[3] = 0;
+      guess_count = 0;
     }
     break;
 
