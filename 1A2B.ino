@@ -35,6 +35,8 @@ int answer[4], guess[4];
 unsigned long prevMillis = 0;
 const long interval = 50;
 
+int guess_count = 0;
+
 void setup() {
   byte numDigits = 4;
   byte digitPins[] = {3, 4, 5, 6};
@@ -62,9 +64,10 @@ void setup() {
 
   // init
   state = IDLE;
-  lcd_print("State:", "IDLE");
+  lcd_print("Welcome to 1A2B!", "Press OK to play");
   led_update(0, 0, 0, 0);
   sevseg.setChars("----");
+  guess_count = 0;
 
   //delay(50);
 }
@@ -84,7 +87,7 @@ void loop() {
     case IDLE:
     if(!ok && pre_ok){
       state = SET;
-      lcd_print("State:", "SET");
+      lcd_print("Setup the answer", "w/ RIGHT and UP!");
       led_update(1, 0, 0, 0);
       sevseg.setNumber(answer[0]*1000 + answer[1]*100 + answer[2]*10 + answer[3]);
     }
@@ -92,15 +95,24 @@ void loop() {
 
     case SET:
     if(!ok && pre_ok){
+      if(answer[0] == 0 && answer[1] == 0 && answer[2] == 0 && answer[3] == 0){
+        randomSeed(curMillis);
+        while(!answer_valid()){
+          answer[0] = random(10);
+          answer[1] = random(10);
+          answer[2] = random(10);
+          answer[3] = random(10);
+        }
+      }
       if(answer_valid()){
         state = GUESS;
-        lcd_print("State:", "GUESS");
+        lcd_print("  Now start...  ", "     GUESS!     ");
         led_update(1, 0, 0, 0);
         sevseg.setNumber(guess[0]*1000 + guess[1]*100 + guess[2]*10 + guess[3]);
       }
       else{
         state = SET_INVALID;
-        lcd_print("State:", "SET_INVALID");
+        lcd_print("Oops! The answer", "looks weird...? ");
       }
     }
     else if(!right && pre_right){
@@ -118,20 +130,26 @@ void loop() {
         verify_correctness();
         if(A == 4){ // if 4a0b
           state = CORRECT;
-          lcd_print("State:", "CORRECT");
+          guess_count += 1;
+          char str[16] = "000 times at all";
+          str[0] += guess_count / 100;
+          str[1] += (guess_count / 10) % 10;
+          str[2] += guess_count % 10;
+          lcd_print("Congrat! U tried", str);
           led_update(1, 1, 1, 1);
         }
         else{
           state = WRONG;
-          lcd_print("State:", "WRONG");
+          lcd_print("C'mon, you gotta", "try again! (x_x)");
           led_update(0, 0, 0, 0);
+          guess_count += 1;
         }
         char str[5] = {A+'0', 'A', B+'0', 'B', '\0'};
         sevseg.setChars(str);
       }
       else{
         state = GUESS_INVALID;
-        lcd_print("State:", "GUESS_INVALID");
+        lcd_print("Oops! Your guess", "looks weird...? ");
       }
     }
     else if(!right && pre_right){
@@ -146,7 +164,7 @@ void loop() {
     case WRONG:
     if(!ok && pre_ok){
       state = GUESS;
-      lcd_print("State:", "GUESS");
+      lcd_print("  Now start...  ", "     GUESS!     ");
       led_update(1, 0, 0, 0);
       sevseg.setNumber(guess[0]*1000 + guess[1]*100 + guess[2]*10 + guess[3]);
     }
@@ -155,7 +173,7 @@ void loop() {
     case CORRECT:
     if(!ok && pre_ok){
       state = IDLE;
-      lcd_print("State:", "IDLE");
+      lcd_print("Welcome to 1A2B!", "Press OK to play");
       led_update(0, 0, 0, 0);
       sevseg.setChars("----");
       answer[0] = answer[1] = answer[2] = answer[3] = 0;
@@ -166,14 +184,14 @@ void loop() {
     case SET_INVALID:
     if(!ok && pre_ok){
       state = SET;
-      lcd_print("State:", "SET");
+      lcd_print("Setup the answer", "w/ RIGHT and UP!");
     }
     break;
 
     case GUESS_INVALID:
     if(!ok && pre_ok){
       state = GUESS;
-      lcd_print("State:", "GUESS");
+      lcd_print("  Now start...  ", "     GUESS!     ");
     }
     break;
 
@@ -183,11 +201,15 @@ void loop() {
 }
 
 int answer_valid(){
-  return ((answer[0] != answer[1]) && (answer[1] != answer[2]) && (answer[2] != answer[3]) && (answer[3] != answer[0]));
+  return ((answer[0] != answer[1]) && (answer[1] != answer[2]) && (answer[2] != answer[3]) &&
+          (answer[0] != answer[2]) && (answer[1] != answer[3]) &&
+          (answer[0] != answer[3]));
 }
 
 int guess_valid(){
-  return ((guess[0] != guess[1]) && (guess[1] != guess[2]) && (guess[2] != guess[3]) && (guess[3] != guess[0]));
+  return ((guess[0] != guess[1]) && (guess[1] != guess[2]) && (guess[2] != guess[3]) && 
+          (guess[0] != guess[2]) && (guess[1] != guess[3]) &&
+          (guess[0] != guess[3]));
 }
 
 void guess_update(){
