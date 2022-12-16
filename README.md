@@ -1,6 +1,8 @@
 # 1A2B
 An Arduino 1A2B game
-![](https://imgur.com/Rt9aeGp.jpg)
+
+<img src="https://camo.githubusercontent.com/f69d949640d4d58310af4a26e126b5f49e532054c933a4e74a69055bd13d84c5/68747470733a2f2f696d6775722e636f6d2f527439616547702e6a7067" alt="" data-canonical-src="https://imgur.com/Rt9aeGp.jpg" width="40%" height="40%">
+
 ## Features
 - Finite state machine
 ![](https://imgur.com/viqQYOf.jpg)
@@ -14,7 +16,9 @@ An Arduino 1A2B game
 - Check validness
     - Check the validness of answer and guess before judging
 ## Arduino Component and Modules
-![](https://imgur.com/ShWuC1Y.jpg)
+
+<img src="https://camo.githubusercontent.com/9fd07e9ac532f0dfddb49fa417efd7579e410ff297e78257ed666d2638641ab1/68747470733a2f2f696d6775722e636f6d2f536857754331592e6a7067" alt="" data-canonical-src="https://imgur.com/ShWuC1Y.jpg" width="40%" height="40%">
+
 - 4 bits 7 segment display
     - Display number
 - LCD
