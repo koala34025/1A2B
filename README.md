@@ -1,6 +1,6 @@
 # 1A2B
 An Arduino 1A2B game
-![](https://imgur.com/7g1f51o.jpg)
+![](https://imgur.com/Rt9aeGp.jpg)
 ## Features
 - Finite state machine
 ![](https://imgur.com/viqQYOf.jpg)
